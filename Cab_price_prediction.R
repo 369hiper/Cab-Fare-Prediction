@@ -3,26 +3,55 @@ library(dplyr) # Data Wrangling
 library(e1071) # Prediction: SVR
 library(randomForest) # Prediction: Random Forest
 head(df)
-df = read.csv('C:/Users/admin/Documents/Edwisor Cab Fare/train_cab.csv',header=TRUE,
-              'colClasses=c("key"="chafare_amount"="numeric",
-                           "pickup_datetime"="character",
-                           "dropoff_longitude"="numeric",
-                           "pickup_longitude"="numeric","dropoff_latitude"="numeric",
-                           "pickup_latitude"="numeric",
-                           "passenger_count"="integer"), stringsAsFactors = FALSE)'c
-x = c("ggplot2", "corrgram", "DMwR", "caret", "randomForest", "unbalanced", "C50", "dummies", "e1071", "Information",
+NY_Train = read.csv('C:/Users/admin/Documents/Edwisor Cab Fare/train_cab.csv')
+x = c("ggplot2", "corrgram", "DMwR", "caret", "randomForest", "unbalanced", "C50", "dummies", "e1071", "Information","caTools",
       "MASS", "rpart", "gbm", "ROSE", 'sampling', 'DataCombine', 'inTrees')
-install.packages("caTools")
-library(caTools)
-# install.packages(x)
 lapply(x, require, character.only = TRUE)
+
+myData <- NY_Train[-c(1125),]
+library(dplyr)
+NY_Train$fare_amount <- as.numeric(NY_Train$fare_amount)
+NY_Train$pickup_datetime = as.POSIXct(NY_Train$pickup_datetime, format="%Y-%m-%d %H:%M:%S")
+NY_Train$passenger_count <- as.integer(NY_Train$passenger_count)
+# We are going to be checking about the NA and Missing Values
+apply(NY_Train, 2, function(x){sum(is.na(x))})
+str(NY_Train)
+# install.packages(x)
 rm(x)
-df$pickup_datetime = as.POSIXct(df$pickup_datetime, format="%Y-%m-%d %H:%M:%S")
+
+df$fare_amount  <- gsub("[^0-9A-Za-z///' ]","'" , NY_Train$fare_amount,ignore.case = TRUE)
+
+
+Data <- gsub("''","" , Data ,ignore.case = TRUE)
+
 str(df)
 summary(df)
-# Plotting the Count of Rental along with the Temprature
-ggplot(df, aes(passenger_count, fare_amount)) +
-  geom_point(aes(color=passenger_count),alpha=0.2) + theme_bw()
+#Distribution of Fare Amount
+P1 <- ggplot(aes(x =fare_amount), data = NY_Train)+ geom_histogram(bins = 100) +
+  scale_x_continuous(limits = c(-50,125)) + 
+  geom_vline(aes(xintercept = median(fare_amount)), linetype = "dashed", size = 0.5, color = "blue") +
+  geom_text(aes(x = 8.5, y = 2, label = "median")) + ggtitle("Distribtion of Fare Amount")
+
+
+#Distribtion of Passenger Count
+P2 <- ggplot(aes(x=factor(passenger_count)), data = NY_Train) + geom_bar() +
+  geom_text(aes(label =scales::percent(..count../sum(..count..))),stat = 'count',vjust = -0.5) + ggtitle("Distribution of Passenger Count") + labs(x = "passenger Count")
+
+P1
+
+#Distribution of Fare Amount
+P1 <- ggplot(aes(x =fare_amount), data = NY_Train)+ geom_histogram(bins = 100) +
+  scale_x_continuous(limits = c(-50,125)) + 
+  geom_vline(aes(xintercept = median(fare_amount)), linetype = "dashed", size = 0.5, color = "blue") +
+  geom_text(aes(x = 8.5, y = 2000, label = "median")) + ggtitle("Distribtion of Fare Amount")
+
+
+#Distribtion of Passenger Count
+P2 <- ggplot(aes(x=factor(passenger_count)), data = NY_Train) + geom_bar() +
+  geom_text(aes(label =scales::percent(..count../sum(..count..))),stat = 'count',vjust = -0.5) + ggtitle("Distribution of Passenger Count") + labs(x = "passenger Count")
+
+P1
+
 
 
 
