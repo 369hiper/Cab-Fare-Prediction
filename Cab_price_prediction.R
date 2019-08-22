@@ -52,7 +52,20 @@ P2 <- ggplot(aes(x=factor(passenger_count)), data = NY_Train) + geom_bar() +
 
 P1
 
+# Check for Outliers
+OutVals = boxplot(df)$out
 
+df$passenger_count
+df$fare_amount
+
+# Check for missing values 
+
+apply(df, 2, function(x){sum(is.na(x))})
+
+# Apply simple regression model 
+
+
+# Apply LGBM Light Gradient Boosting Method
 
 
 # Outlier Analysis
